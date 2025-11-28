@@ -1,152 +1,258 @@
 import React, { useState } from "react";
 import { useForm } from "@tanstack/react-form";
-import Employeetable from "./Employeetable";
+import Select from "react-select";
+
+const inputClass =
+  "w-full h-11 border border-gray-400 rounded-md px-3 text-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500";
+
+const textareaClass =
+  "w-full min-h-[100px] border border-gray-400 rounded-md px-3 py-2 text-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500";
+
+const selectStyles = {
+  control: (base, state) => ({
+    ...base,
+    height: "44px",
+    minHeight: "44px",
+    borderRadius: "6px",
+    border: "1px solid #9ca3af",
+    boxShadow: state.isFocused ? "0 0 0 2px rgba(99,102,241,0.5)" : "none",
+    "&:hover": { borderColor: "#6b7280" },
+  }),
+  valueContainer: (base) => ({
+    ...base,
+    padding: "0 8px",
+  }),
+  placeholder: (base) => ({
+    ...base,
+    color: "#6b7280",
+    fontSize: "14px",
+  }),
+};
 
 const EmployeeForm = () => {
+
+  const skillOptions = [
+    { value: "javascript", label: "JavaScript" },
+    { value: "python", label: "Python" },
+    { value: "aws", label: "AWS/Cloud" },
+    { value: "management", label: "Project Management" },
+  ];
+
+  const TanStackSelect = ({ field, options, placeholder }) => {
+    return (
+      <Select
+        isMulti
+        value={field.state.value || []}
+        onChange={field.handleChange}
+        onBlur={field.handleBlur}
+        options={options}
+        placeholder={placeholder}
+        className="w-full"
+        styles={selectStyles}
+      />
+    );
+  };
+
   const [employees, setEmployees] = useState([]);
 
   const form = useForm({
     defaultValues: {
-      name: "",
+      firstname: "",
+      lastname: "",
       age: "",
       gender: "",
       skills: [],
       joiningDate: "",
       description: "",
-      isActive: false,
+      emailNotifications: false,
     },
     onSubmit: async ({ value }) => {
-      setEmployees((prev) => [...prev, value]); // add new row to table
+      const submittedSkills = value.skills.map((s) => s.value);
+      console.log("submitted skills:", submittedSkills);
+      setEmployees((prev) => [...prev, value]);
     },
   });
 
   return (
-    <div className="p-4 space-y-4">
-      <h2 className="text-xl font-bold">Employee Form</h2>
-
+    <div className="pt-3">
       {/* FORM */}
       <form
         onSubmit={(e) => {
           e.preventDefault();
           form.handleSubmit();
         }}
-        className="space-y-4"
+        className=""
       >
-        {/* TEXT FIELD */}
-        <form.Field
-          name="name"
-          children={(field) => (
-            <div>
-              <label>Name</label>
-              <input
-                className="border p-2 w-full"
-                value={field.state.value}
-                onChange={(e) => field.handleChange(e.target.value)}
+        <h2 className="text-xl text-center text-gray-700 font-semibold">
+          EMPLOYEE FORM
+        </h2>
+        <p className="text-sm/6 text-gray-400 text-center mb-5">
+          This information will be displayed publicly so be careful what you
+          share.
+        </p>
+
+        {/* MAIN FORM CONTAINER CENTERED */}
+        <div className="flex flex-col gap-5 w-[500px] mx-auto">
+          {/* FIRST AND LAST NAME */}
+          <div className="flex gap-5">
+            <div className="flex-1 text-sm/6">
+              <label>First Name</label>
+              <form.Field
+                name="firstname"
+                children={(field) => (
+                  <input
+                    className={inputClass}
+                    value={field.state.value}
+                    onChange={(e) => field.handleChange(e.target.value)}
+                  />
+                )}
               />
             </div>
-          )}
-        />
 
-        {/* NUMBER FIELD */}
-        <form.Field
-          name="age"
-          children={(field) => (
-            <div>
+            <div className="flex-1 text-sm/6">
+              <label>Last Name</label>
+              <form.Field
+                name="lastname"
+                children={(field) => (
+                  <input
+                    className={inputClass}
+                    value={field.state.value}
+                    onChange={(e) => field.handleChange(e.target.value)}
+                  />
+                )}
+              />
+            </div>
+          </div>
+
+          {/* AGE & GENDER */}
+          <div className="flex gap-5">
+            <div className="flex-1 text-sm/6">
               <label>Age</label>
-              <input
-                type="number"
-                className="border p-2 w-full"
-                value={field.state.value}
-                onChange={(e) => field.handleChange(Number(e.target.value))}
+              <form.Field
+                name="age"
+                children={(field) => (
+                  <input
+                    type="number"
+                    className={inputClass}
+                    value={field.state.value}
+                    onChange={(e) => field.handleChange(Number(e.target.value))}
+                  />
+                )}
               />
             </div>
-          )}
-        />
 
-        {/* SELECT FIELD */}
-        <form.Field
-          name="gender"
-          children={(field) => (
-            <div>
+            <div className="flex-1 text-sm/6">
               <label>Gender</label>
-              <select
-                className="border p-2 w-full"
-                value={field.state.value}
-                onChange={(e) => field.handleChange(e.target.value)}
-              >
-                <option value="">Select</option>
-                <option value="male">Male</option>
-                <option value="female">Female</option>
-              </select>
-            </div>
-          )}
-        />
-
-        {/* MULTI SELECT */}
-        <form.Field
-          name="skills"
-          children={(field) => (
-            <div>
-              <label>Skills</label>
-              <select
-                multiple
-                className="border p-2 w-full"
-                value={field.state.value}
-                onChange={(e) => {
-                  const selected = Array.from(
-                    e.target.selectedOptions,
-                    (opt) => opt.value
-                  );
-                  field.handleChange(selected);
-                }}
-              >
-                <option value="react">React</option>
-                <option value="angular">Angular</option>
-                <option value="node">Node</option>
-                <option value="sql">SQL</option>
-              </select>
-            </div>
-          )}
-        />
-
-        {/* DATE FIELD */}
-        <form.Field
-          name="joiningDate"
-          children={(field) => (
-            <div>
-              <label>Joining Date</label>
-              <input
-                type="date"
-                className="border p-2 w-full"
-                value={field.state.value}
-                onChange={(e) => field.handleChange(e.target.value)}
+              <form.Field
+                name="gender"
+                children={(field) => (
+                  <select
+                    className={inputClass}
+                    value={field.state.value}
+                    onChange={(e) => field.handleChange(e.target.value)}
+                  >
+                    <option value="">Select</option>
+                    <option value="male">Male</option>
+                    <option value="female">Female</option>
+                  </select>
+                )}
               />
             </div>
-          )}
-        />
+          </div>
 
-        {/* SWITCH */}
-        <form.Field
-          name="isActive"
-          children={(field) => (
-            <div className="flex gap-2 items-center">
-              <label>Active</label>
-              <input
-                type="checkbox"
-                checked={field.state.value}
-                onChange={(e) => field.handleChange(e.target.checked)}
-              />
-            </div>
-          )}
-        />
+          {/* MULTI SELECT SKILLS */}
+          <div className="text-sm/6">
+            <label>Select Skills</label>
+            <form.Field
+              name="skills"
+              children={(field) => (
+                <div>
+                  <TanStackSelect
+                    field={field}
+                    options={skillOptions}
+                    placeholder="Select skills..."
+                  />
 
-        <button className="bg-blue-600 text-white px-4 py-2 rounded">
-          Add Employee
-        </button>
+                  {/* Errors */}
+                  {field.state.meta.errors && (
+                    <em className="text-red-500 text-sm block mt-1">
+                      {field.state.meta.errors.join(", ")}
+                    </em>
+                  )}
+                </div>
+              )}
+            />
+          </div>
+
+          {/* JOINING DATE */}
+          <div className="text-sm/6">
+            <label>Joining Date</label>
+            <form.Field
+              name="joiningDate"
+              children={(field) => (
+                <input
+                  type="date"
+                  className={inputClass}
+                  value={field.state.value}
+                  onChange={(e) => field.handleChange(e.target.value)}
+                />
+              )}
+            />
+          </div>
+
+          {/* DESCRIPTION TEXTAREA 👇 */}
+          <div>
+            <label>Description</label>
+            <form.Field
+              name="description"
+              children={(field) => (
+                <textarea
+                  className={textareaClass}
+                  value={field.state.value}
+                  onChange={(e) => field.handleChange(e.target.value)}
+                  placeholder="Write something about the employee..."
+                ></textarea>
+              )}
+            />
+          </div>
+
+          {/* SWITCH */}
+          <div className="text-sm/6">
+            <form.Field
+              name="emailNotifications"
+              children={(field) => (
+                <div className="flex items-center justify-between w-full">
+                  <label className="font-medium text-sm/6">
+                    Email Notifications
+                  </label>
+
+                  <button
+                    type="button"
+                    onClick={() => field.handleChange(!field.state.value)}
+                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition 
+                      ${field.state.value ? "bg-indigo-500" : "bg-gray-400"}`}
+                  >
+                    <span
+                      className={`inline-block h-5 w-5 transform rounded-full bg-white transition 
+                        ${
+                          field.state.value ? "translate-x-5" : "translate-x-0"
+                        }`}
+                    />
+                  </button>
+                </div>
+              )}
+            />
+          </div>
+
+          {/* SUBMIT BUTTON */}
+          <button className="bg-blue-600 text-white px-4 py-2 rounded w-full">
+            Add Employee
+          </button>
+        </div>
       </form>
 
-      {/* TABLE */}
-      <Employeetable data={employees} />
+      {/* TABLE HERE IF NEEDED */}
+      {/* <Employeetable data={employees} /> */}
     </div>
   );
 };
