@@ -29,13 +29,13 @@ const selectStyles = {
   }),
 };
 
-const EmployeeForm = () => {
+const Employeeform = () => {
 
   const skillOptions = [
     { value: "javascript", label: "JavaScript" },
     { value: "python", label: "Python" },
     { value: "aws", label: "AWS/Cloud" },
-    { value: "management", label: "Project Management" },
+    { value: "management", label: "Management" },
   ];
 
   const TanStackSelect = ({ field, options, placeholder }) => {
@@ -69,6 +69,7 @@ const EmployeeForm = () => {
     onSubmit: async ({ value }) => {
       const submittedSkills = value.skills.map((s) => s.value);
       console.log("submitted skills:", submittedSkills);
+      console.log("submitted values:", value);
       setEmployees((prev) => [...prev, value]);
     },
   });
@@ -201,7 +202,7 @@ const EmployeeForm = () => {
           </div>
 
           {/* DESCRIPTION TEXTAREA 👇 */}
-          <div>
+          <div className="text-sm/6">
             <label>Description</label>
             <form.Field
               name="description"
@@ -257,4 +258,4 @@ const EmployeeForm = () => {
   );
 };
 
-export default EmployeeForm;
+export default Employeeform;
