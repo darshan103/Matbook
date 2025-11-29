@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React from "react";
 import { useForm } from "@tanstack/react-form";
 import Select from "react-select";
+import { FaArrowRight } from "react-icons/fa";
 
 const inputClass =
   "w-full h-11 border border-gray-400 rounded-md px-3 text-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500";
@@ -29,112 +30,90 @@ const selectStyles = {
   }),
 };
 
-const Employeeform = () => {
+const Employeeform = ({ schema }) => {
+  
+  // f = schema array (shortcut)
+  const f = schema.fields;
+  console.log("schema f:", f);
 
-  const skillOptions = [
-    { value: "javascript", label: "JavaScript" },
-    { value: "python", label: "Python" },
-    { value: "aws", label: "AWS/Cloud" },
-    { value: "management", label: "Management" },
-  ];
+  // multi-select options
+  const skillOptions = f[3].options.map((item) => ({
+    value: item,
+    label: item,
+  }));
 
-  const TanStackSelect = ({ field, options, placeholder }) => {
-    return (
-      <Select
-        isMulti
-        value={field.state.value || []}
-        onChange={field.handleChange}
-        onBlur={field.handleBlur}
-        options={options}
-        placeholder={placeholder}
-        className="w-full"
-        styles={selectStyles}
-      />
-    );
-  };
+  const TanStackSelect = ({ field, options, placeholder }) => (
+    <Select
+      isMulti
+      value={field.state.value || []}
+      onChange={field.handleChange}
+      onBlur={field.handleBlur}
+      options={options}
+      placeholder={placeholder}
+      className="w-full"
+      styles={selectStyles}
+    />
+  );
 
-  const [employees, setEmployees] = useState([]);
-
+  // Default values based on schema names
   const form = useForm({
     defaultValues: {
-      firstname: "",
-      lastname: "",
+      fullName: "",
       age: "",
       gender: "",
       skills: [],
-      joiningDate: "",
-      description: "",
-      emailNotifications: false,
+      joinDate: "",
+      bio: "",
+      isActive: false,
     },
-    onSubmit: async ({ value }) => {
-      const submittedSkills = value.skills.map((s) => s.value);
-      console.log("submitted skills:", submittedSkills);
-      console.log("submitted values:", value);
-      setEmployees((prev) => [...prev, value]);
+    onSubmit: ({ value }) => {
+      console.log("Submitted:", value);
     },
   });
 
   return (
     <div className="pt-3">
-      {/* FORM */}
       <form
         onSubmit={(e) => {
           e.preventDefault();
           form.handleSubmit();
         }}
-        className=""
       >
         <h2 className="text-xl text-center text-gray-700 font-semibold">
           EMPLOYEE FORM
         </h2>
-        <p className="text-sm/6 text-gray-400 text-center mb-5">
-          This information will be displayed publicly so be careful what you
-          share.
-        </p>
 
-        {/* MAIN FORM CONTAINER CENTERED */}
         <div className="flex flex-col gap-5 w-[500px] mx-auto">
-          {/* FIRST AND LAST NAME */}
-          <div className="flex gap-5">
-            <div className="flex-1 text-sm/6">
-              <label>First Name</label>
-              <form.Field
-                name="firstname"
-                children={(field) => (
-                  <input
-                    className={inputClass}
-                    value={field.state.value}
-                    onChange={(e) => field.handleChange(e.target.value)}
-                  />
-                )}
-              />
-            </div>
-
-            <div className="flex-1 text-sm/6">
-              <label>Last Name</label>
-              <form.Field
-                name="lastname"
-                children={(field) => (
-                  <input
-                    className={inputClass}
-                    value={field.state.value}
-                    onChange={(e) => field.handleChange(e.target.value)}
-                  />
-                )}
-              />
-            </div>
+          {/* FULL NAME */}
+          <div className="text-sm/6">
+            <label>{f[0].label}</label>
+            <form.Field
+              name="fullName"
+              children={(field) => (
+                <input
+                  type="text"
+                  className={inputClass}
+                  placeholder={f[0].placeholder}
+                  value={field.state.value}
+                  onChange={(e) => field.handleChange(e.target.value)}
+                />
+              )}
+            />
           </div>
 
-          {/* AGE & GENDER */}
+          {/* AGE + GENDER */}
           <div className="flex gap-5">
+            {/* AGE */}
             <div className="flex-1 text-sm/6">
-              <label>Age</label>
+              <label>{f[1].label}</label>
               <form.Field
                 name="age"
                 children={(field) => (
                   <input
                     type="number"
                     className={inputClass}
+                    placeholder="Enter age"
+                    min={f[1].min}
                     value={field.state.value}
                     onChange={(e) => field.handleChange(Number(e.target.value))}
                   />
@@ -142,8 +121,9 @@ const Employeeform = () => {
               />
             </div>
 
+            {/* GENDER */}
             <div className="flex-1 text-sm/6">
-              <label>Gender</label>
+              <label>{f[2].label}</label>
               <form.Field
                 name="gender"
                 children={(field) => (
@@ -153,47 +133,42 @@ const Employeeform = () => {
                     onChange={(e) => field.handleChange(e.target.value)}
                   >
                     <option value="">Select</option>
-                    <option value="male">Male</option>
-                    <option value="female">Female</option>
+                    {f[2].options.map((opt) => (
+                      <option key={opt} value={opt}>
+                        {opt}
+                      </option>
+                    ))}
                   </select>
                 )}
               />
             </div>
           </div>
 
-          {/* MULTI SELECT SKILLS */}
+          {/* SKILLS */}
           <div className="text-sm/6">
-            <label>Select Skills</label>
+            <label>{f[3].label}</label>
             <form.Field
               name="skills"
               children={(field) => (
-                <div>
-                  <TanStackSelect
-                    field={field}
-                    options={skillOptions}
-                    placeholder="Select skills..."
-                  />
-
-                  {/* Errors */}
-                  {field.state.meta.errors && (
-                    <em className="text-red-500 text-sm block mt-1">
-                      {field.state.meta.errors.join(", ")}
-                    </em>
-                  )}
-                </div>
+                <TanStackSelect
+                  field={field}
+                  options={skillOptions}
+                  placeholder="Select skills..."
+                />
               )}
             />
           </div>
 
-          {/* JOINING DATE */}
+          {/* JOIN DATE */}
           <div className="text-sm/6">
-            <label>Joining Date</label>
+            <label>{f[4].label}</label>
             <form.Field
-              name="joiningDate"
+              name="joinDate"
               children={(field) => (
                 <input
                   type="date"
                   className={inputClass}
+                  min={f[4].minDate}
                   value={field.state.value}
                   onChange={(e) => field.handleChange(e.target.value)}
                 />
@@ -201,59 +176,57 @@ const Employeeform = () => {
             />
           </div>
 
-          {/* DESCRIPTION TEXTAREA 👇 */}
+          {/* BIO */}
           <div className="text-sm/6">
-            <label>Description</label>
+            <label>{f[5].label}</label>
             <form.Field
-              name="description"
+              name="bio"
               children={(field) => (
                 <textarea
                   className={textareaClass}
+                  placeholder={f[5].placeholder}
                   value={field.state.value}
                   onChange={(e) => field.handleChange(e.target.value)}
-                  placeholder="Write something about the employee..."
                 ></textarea>
               )}
             />
           </div>
 
           {/* SWITCH */}
-          <div className="text-sm/6">
-            <form.Field
-              name="emailNotifications"
-              children={(field) => (
-                <div className="flex items-center justify-between w-full">
-                  <label className="font-medium text-sm/6">
-                    Email Notifications
-                  </label>
-
+          <div className="flex justify-between items-center text-sm/6">
+            <div className="flex gap-3 flex-1">
+              <label>{f[6].label}</label>
+              <form.Field
+                name="isActive"
+                children={(field) => (
                   <button
                     type="button"
                     onClick={() => field.handleChange(!field.state.value)}
-                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition 
-                      ${field.state.value ? "bg-indigo-500" : "bg-gray-400"}`}
+                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition ${
+                      field.state.value ? "bg-indigo-500" : "bg-gray-400"
+                    }`}
                   >
                     <span
-                      className={`inline-block h-5 w-5 transform rounded-full bg-white transition 
-                        ${
-                          field.state.value ? "translate-x-5" : "translate-x-0"
-                        }`}
+                      className={`inline-block h-5 w-5 transform rounded-full bg-white transition ${
+                        field.state.value ? "translate-x-5" : "translate-x-0"
+                      }`}
                     />
                   </button>
-                </div>
-              )}
-            />
+                )}
+              />
+            </div>
+            <div className="flex-1 flex items-center justify-end">
+              <button
+                type="submit"
+                className="flex items-center justify-between gap-2 bg-indigo-600 text-white p-2 rounded w-2/3"
+              >
+                <span>Add Employee</span>
+                <FaArrowRight size={14} />
+              </button>
+            </div>
           </div>
-
-          {/* SUBMIT BUTTON */}
-          <button className="bg-blue-600 text-white px-4 py-2 rounded w-full">
-            Add Employee
-          </button>
         </div>
       </form>
-
-      {/* TABLE HERE IF NEEDED */}
-      {/* <Employeetable data={employees} /> */}
     </div>
   );
 };
