@@ -86,110 +86,239 @@ const Employeeform = ({ schema }) => {
         <div className="flex flex-col gap-5 w-[500px] mx-auto">
           {/* FULL NAME */}
           <div className="text-sm/6">
-            <label>{f[0].label}</label>
+            <label>
+              {f[0].label} <span className="text-red-500 item-center">*</span>
+            </label>
             <form.Field
               name="fullName"
-              children={(field) => (
-                <input
-                  type="text"
-                  className={inputClass}
-                  placeholder={f[0].placeholder}
-                  value={field.state.value}
-                  onChange={(e) => field.handleChange(e.target.value)}
-                />
+              validators={{
+                onChange: ({ value }) =>
+                  value < f[0].validations.minLength
+                    ? "Min 3 characters is required"
+                    : "",
+              }}
+            >
+              {(field) => (
+                <>
+                  <input
+                    type="text"
+                    className={inputClass}
+                    placeholder={f[0].placeholder}
+                    value={field.state.value}
+                    onChange={(e) => field.handleChange(e.target.value)}
+                  />
+
+                  {!field.state.meta.isValid && field.state.meta.errors ? (
+                    <p className="text-red-500 text-xs italic mt-1">
+                      {field.state.meta.errors}
+                    </p>
+                  ) : null}
+                </>
               )}
-            />
+            </form.Field>
           </div>
 
           {/* AGE + GENDER */}
           <div className="flex gap-5">
             {/* AGE */}
             <div className="flex-1 text-sm/6">
-              <label>{f[1].label}</label>
+              <label>
+                {f[1].label}
+                <span className="text-red-500 item-center">*</span>
+              </label>
               <form.Field
                 name="age"
-                children={(field) => (
-                  <input
-                    type="number"
-                    className={inputClass}
-                    placeholder="Enter age"
-                    min={f[1].min}
-                    value={field.state.value}
-                    onChange={(e) => field.handleChange(Number(e.target.value))}
-                  />
+                validators={{
+                  onChange: ({ value }) => {
+                    const rules = f[1].validations; // <-- age validations
+
+                    if (!value) return "Age is required";
+
+                    if (rules.min && value < rules.min)
+                      return `Age must be at least ${rules.min}`;
+
+                    if (rules.max && value > rules.max)
+                      return `Age must be below ${rules.max}`;
+
+                    return "";
+                  },
+                }}
+              >
+                {(field) => (
+                  <>
+                    <input
+                      type="number"
+                      className={inputClass}
+                      placeholder="Enter age"
+                      min={f[1].min}
+                      value={field.state.value}
+                      onChange={(e) =>
+                        field.handleChange(Number(e.target.value))
+                      }
+                    />
+
+                    {!field.state.meta.isValid && field.state.meta.errors ? (
+                      <p className="text-red-500 text-xs italic mt-1">
+                        {field.state.meta.errors}
+                      </p>
+                    ) : null}
+                  </>
                 )}
-              />
+              </form.Field>
             </div>
 
             {/* GENDER */}
             <div className="flex-1 text-sm/6">
-              <label>{f[2].label}</label>
+              <label>
+                {f[2].label}
+                <span className="text-red-500 item-center">*</span>
+              </label>
               <form.Field
                 name="gender"
-                children={(field) => (
-                  <select
-                    className={inputClass}
-                    value={field.state.value}
-                    onChange={(e) => field.handleChange(e.target.value)}
-                  >
-                    <option value="">Select</option>
-                    {f[2].options.map((opt) => (
-                      <option key={opt} value={opt}>
-                        {opt}
-                      </option>
-                    ))}
-                  </select>
+                validators={{
+                  onChange: ({ value }) => (!value ? "Gender is required" : ""),
+                }}
+              >
+                {(field) => (
+                  <>
+                    <select
+                      className={inputClass}
+                      value={field.state.value}
+                      onChange={(e) => field.handleChange(e.target.value)}
+                    >
+                      <option value="">Select</option>
+                      {f[2].options.map((opt) => (
+                        <option key={opt} value={opt}>
+                          {opt}
+                        </option>
+                      ))}
+                    </select>
+                    {!field.state.meta.isValid && field.state.meta.errors ? (
+                      <p className="text-red-500 text-xs italic mt-1">
+                        {field.state.meta.errors}
+                      </p>
+                    ) : null}
+                  </>
                 )}
-              />
+              </form.Field>
             </div>
           </div>
 
           {/* SKILLS */}
           <div className="text-sm/6">
-            <label>{f[3].label}</label>
+            <label>
+              {f[3].label}
+              <span className="text-red-500 item-center">*</span>
+            </label>
             <form.Field
               name="skills"
-              children={(field) => (
-                <TanStackSelect
-                  field={field}
-                  options={skillOptions}
-                  placeholder="Select skills..."
-                />
+              validators={{
+                onChange: ({ value }) => {
+                  const v = f[3].validations; // ⬅️ minSelected & maxSelected rules
+
+                  if (v.minSelected && value.length < v.minSelected) {
+                    return `Select at least ${v.minSelected} skill(s)`;
+                  }
+
+                  if (v.maxSelected && value.length > v.maxSelected) {
+                    return `You can select maximum ${v.maxSelected} skill(s)`;
+                  }
+
+                  return "";
+                },
+              }}
+            >
+              {(field) => (
+                <>
+                  <TanStackSelect
+                    field={field}
+                    options={skillOptions}
+                    placeholder="Select skills..."
+                  />
+                  {!field.state.meta.isValid && field.state.meta.errors ? (
+                    <p className="text-red-500 text-xs italic mt-1">
+                      {field.state.meta.errors}
+                    </p>
+                  ) : null}
+                </>
               )}
-            />
+            </form.Field>
           </div>
 
           {/* JOIN DATE */}
           <div className="text-sm/6">
-            <label>{f[4].label}</label>
+            <label>
+              {f[4].label}
+              <span className="text-red-500 item-center">*</span>
+            </label>
             <form.Field
               name="joinDate"
-              children={(field) => (
-                <input
-                  type="date"
-                  className={inputClass}
-                  min={f[4].minDate}
-                  value={field.state.value}
-                  onChange={(e) => field.handleChange(e.target.value)}
-                />
+              validators={{
+                onChange: ({ value }) => {
+                  const v = f[4].validations;
+                  const minDate = v.minDate;
+
+                  if (!value) {
+                    return "Joining Date is required";
+                  }
+
+                  // Convert to comparable Date objects
+                  if (minDate && new Date(value) < new Date(minDate)) {
+                    return `${f[4].label} cannot be earlier than ${minDate}`;
+                  }
+
+                  return "";
+                },
+              }}
+            >
+              {(field) => (
+                <>
+                  <input
+                    type="date"
+                    className={inputClass}
+                    min={f[4].minDate}
+                    value={field.state.value}
+                    onChange={(e) => field.handleChange(e.target.value)}
+                  />
+                  {!field.state.meta.isValid && field.state.meta.errors ? (
+                    <p className="text-red-500 text-xs italic mt-1">
+                      {field.state.meta.errors}
+                    </p>
+                  ) : null}
+                </>
               )}
-            />
+            </form.Field>
           </div>
 
           {/* BIO */}
           <div className="text-sm/6">
-            <label>{f[5].label}</label>
+            <label>
+              {f[5].label}
+              <span className="text-red-500 item-center">*</span>
+            </label>
             <form.Field
               name="bio"
-              children={(field) => (
-                <textarea
-                  className={textareaClass}
-                  placeholder={f[5].placeholder}
-                  value={field.state.value}
-                  onChange={(e) => field.handleChange(e.target.value)}
-                ></textarea>
+              validators={{
+                onChange: ({ value }) => (!value ? "Bio is required" : ""),
+              }}
+            >
+              {(field) => (
+                <>
+                  <textarea
+                    className={textareaClass}
+                    placeholder={f[5].placeholder}
+                    value={field.state.value}
+                    onChange={(e) => field.handleChange(e.target.value)}
+                  ></textarea>
+
+                  {!field.state.meta.isValid && field.state.meta.errors ? (
+                    <p className="text-red-500 text-xs italic mt-1">
+                      {field.state.meta.errors}
+                    </p>
+                  ) : null}
+                </>
               )}
-            />
+            </form.Field>
           </div>
 
           {/* SWITCH */}
