@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useForm } from "@tanstack/react-form";
 import Select from "react-select";
 import { FaArrowRight } from "react-icons/fa";
@@ -31,7 +31,7 @@ const selectStyles = {
 };
 
 const Employeeform = ({ schema }) => {
-  
+  const [loading, setLoading] = useState(false);
   // f = schema array (shortcut)
   const f = schema.fields;
   console.log("schema f:", f);
@@ -66,17 +66,21 @@ const Employeeform = ({ schema }) => {
       bio: "",
       isActive: false,
     },
-    onSubmit: ({ value }) => {
+    onSubmit: async({ value }) => {
       console.log("Submitted:", value);
+      await new Promise((res) => setTimeout(res, 1500));
     },
   });
 
   return (
     <div className="pt-3">
       <form
-        onSubmit={(e) => {
+        onSubmit={async (e) => {
           e.preventDefault();
-          form.handleSubmit();
+          setLoading(true);
+          await form.handleSubmit();
+          await new Promise((res) => setTimeout(res, 1000));
+          setLoading(false);
         }}
       >
         <h2 className="text-xl text-center text-gray-700 font-semibold">
@@ -347,10 +351,18 @@ const Employeeform = ({ schema }) => {
             <div className="flex-1 flex items-center justify-end">
               <button
                 type="submit"
-                className="flex items-center justify-between gap-2 bg-indigo-600 text-white p-2 rounded w-2/3"
+                disabled={loading}
+                className={`flex items-center justify-between gap-2 bg-indigo-600 text-white p-2 rounded w-2/3
+    ${loading ? "opacity-60 cursor-not-allowed" : ""}`}
               >
-                <span>Add Employee</span>
-                <FaArrowRight size={14} />
+                {loading ? (
+                  <div className="h-5 w-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                ) : (
+                  <>
+                    <span>Add Employee</span>
+                    <FaArrowRight size={14} />
+                  </>
+                )}
               </button>
             </div>
           </div>
