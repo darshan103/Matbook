@@ -11,42 +11,55 @@ const EmployeeData = () => {
   const [pageInfo, setPageInfo] = useState({});
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(5); // items per page
-  const [sort, setSort] = useState("desc"); // asc | desc
+  const [sortBy, setSortBy] = useState("createdAt");
+  const [sortOrder, setSortOrder] = useState("desc");
+  const [loading, setLoading] = useState(false); // ✅ Loading state
+  const [error, setError] = useState(null); // ✅ Error state
+  const [totalCount, setTotalCount] = useState(0); // ✅ Total submissions count
 
   // ---------------- FETCH DATA ----------------
   const fetchData = async () => {
-    const res = await axios.get("/api/submissions", {
-      params: { page, limit, sort },
-    });
+    try {
+      setLoading(true);
+      setError(null);
 
-    setSubmissions(res.data.data); // FIX
-    setPageInfo(res.data.pageInfo);
+      const res = await axios.get("/api/submissions", {
+        params: { page, limit, sortBy, sortOrder },
+      });
+      
+      setSubmissions(res.data.data); // FIX
+      setPageInfo(res.data.pageInfo);
+      setTotalCount(res.data.pageInfo.totalItems);
+    } catch (error) {
+      setError("Failed to load submissions");
+    } finally{
+      setLoading(false);
+    }
   };
 
-  // eslint-disable-next-line
   useEffect(() => {
     fetchData();
-  }, [page, limit, sort]);
+  }, [page, limit, sortBy, sortOrder]);
 
   // ---------------- COLUMNS ----------------
   const columns = [
     {
       header: "SubmissionId",
       accessorKey: "submissionId",
-      meta: { width: "200px" },
+      meta: { width: "400px" },
     },
     {
       header: (
         <div
           className="cursor-pointer select-none"
-          onClick={() => setSort(sort === "asc" ? "desc" : "asc")}
+          onClick={() => setSortOrder(sortOrder === "asc" ? "desc" : "asc")}
         >
-          CreatedAt {sort === "asc" ? "↑" : "↓"}
+          CreatedAt {sortOrder === "asc" ? "↑" : "↓"}
         </div>
       ),
       accessorKey: "createdAt",
-      cell: (info) => new Date(info.getValue()).toLocaleString("en-IN"),
-      meta: { width: "200px" },
+      cell: (info) => new Date(info.getValue()).toLocaleDateString("en-IN"),
+      meta: { width: "250px" },
     },
     {
       header: "FullName",
@@ -94,6 +107,30 @@ const EmployeeData = () => {
     columns,
     getCoreRowModel: getCoreRowModel(),
   });
+
+  if (loading) {
+    return (
+      <div className="text-center mt-6 text-lg font-semibold">
+        Loading submissions...
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="text-center mt-6 text-lg text-red-600 font-semibold">
+        {error}
+      </div>
+    );
+  }
+
+  if (!submissions.length) {
+    return (
+      <div className="text-center mt-6 text-gray-600 text-lg">
+        No submissions found.
+      </div>
+    );
+  }
 
   return (
     <div>
@@ -172,6 +209,10 @@ const EmployeeData = () => {
           <option value="10">10 per page</option>
           <option value="20">20 per page</option>
         </select>
+      </div>
+
+      <div className="text-lg font-semibold mb-2">
+        Total Submissions: {totalCount}
       </div>
     </div>
   );
