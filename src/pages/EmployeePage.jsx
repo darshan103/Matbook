@@ -49,15 +49,6 @@ const EmployeePage = () => {
     }
 
   return (
-    // <div className="w-full max-w-2xl bg-white rounded-xl shadow-md p-6 border border-gray-200">
-    //   <h1 className="text-2xl font-semibold mb-1">
-    //     {schema.title || "Dynamic Form"}
-    //   </h1>
-    //   {schema.description && (
-    //     <p className="text-gray-600 text-sm mb-5">{schema.description}</p>
-    //   )}
-    //   <Employeeform schema={schema} />
-    // </div>
       <Employeeform schema={schema} />
   );
 }

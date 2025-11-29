@@ -1,6 +1,7 @@
 import { Route, Routes, useNavigate } from 'react-router-dom';
 import './App.css';
 import EmployeePage from './pages/EmployeePage';
+import EmployeeData from './pages/EmployeeData';
 
 // function Home() {
 //   const navigate = useNavigate();
@@ -25,6 +26,7 @@ function App() {
     <>
       <Routes>
         <Route path="/" element={<EmployeePage />} />
+        <Route path="/api/submissions" element={<EmployeeData />} />
         {/* <Route path="/" element={<Home />} />
         <Route path="/api/form-schema" element={<Employeeform />} /> */}
       </Routes>
