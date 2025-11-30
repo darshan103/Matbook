@@ -148,8 +148,11 @@ const Employeeform = ({ schema }) => {
           }}
         >
           <h2 className="text-xl text-center text-gray-700 font-semibold">
-            EMPLOYEE FORM
+            {schema.title}
           </h2>
+          <p className="text-sm text-center text-gray-500 italic">
+            {schema.description}
+          </p>
 
           <div className="flex flex-col gap-5 w-[500px] mx-auto">
             {/* FULL NAME */}
@@ -302,7 +305,7 @@ const Employeeform = ({ schema }) => {
                     <TanStackSelect
                       field={field}
                       options={skillOptions}
-                      placeholder="Select skills..."
+                      placeholder="Select Skills"
                     />
                     {!field.state.meta.isValid && field.state.meta.errors ? (
                       <p className="text-red-500 text-xs italic mt-1">
