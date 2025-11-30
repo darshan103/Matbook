@@ -1,16 +1,15 @@
-import React, { useEffect } from 'react'
+import React from 'react'
 import axios from "axios";
 import { useQuery } from "@tanstack/react-query";
 import Employeeform from '../components/Employeeform';
 
 export const fetchFormSchema = async () => {
   console.log("console hit API");
-  const res = await axios.get("/api/form-schema");
+  const res = await axios.get("https://matbookbackend.onrender.com/api/form-schema");
   return res.data;
 };
 
 const EmployeePage = () => {
-
     const {
       data: schema,
       isLoading,

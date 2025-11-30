@@ -19,7 +19,6 @@ const EmployeeData = () => {
 
   const [selectedRow, setSelectedRow] = useState(null);
   const [showModal, setShowModal] = useState(false);
-  const [showDrawer, setShowDrawer] = useState(false);
 
   // ---------------- FETCH DATA ----------------
   const fetchData = async () => {
@@ -27,9 +26,12 @@ const EmployeeData = () => {
       setLoading(true);
       setError(null);
 
-      const res = await axios.get("/api/submissions", {
-        params: { page, limit, sortBy, sortOrder },
-      });
+      const res = await axios.get(
+        "https://matbookbackend.onrender.com/api/submissions",
+        {
+          params: { page, limit, sortBy, sortOrder },
+        }
+      );
 
       setSubmissions(res.data.data);
       setPageInfo(res.data.pageInfo);
@@ -121,7 +123,7 @@ const EmployeeData = () => {
   const handleView = (row) => {
     setSelectedRow(row);
     setShowModal(true); // open modal
-    // setShowDrawer(true);  // OR open drawer
+    // setShowDrawer(true);  // open drawer
   };
 
   // ---------------- TABLE ----------------

@@ -82,16 +82,12 @@ const Employeeform = ({ schema }) => {
         // await new Promise((resolve) => setTimeout(resolve, 2000));
 
         // Axios POST
-        const res = await axios.post(
-          "http://localhost:5000/api/submissions",
-          value
-        );
+        const res = await axios.post("https://matbookbackend.onrender.com/api/submissions", value);
 
         const result = res.data;
         if (!result.success) {
           setMessage("Validation error!");
           setStatus("error");
-
           console.log("Server validation:", result.errors);
           return;
         }
@@ -104,7 +100,10 @@ const Employeeform = ({ schema }) => {
         formApi.reset();
 
         // REDIRECT AFTER 1 sec
-        setTimeout(() => navigate("/api/submissions"), 1000);
+        setTimeout(
+          () => navigate("https://matbookbackend.onrender.com/api/submissions"),
+          1000
+        );
 
       } catch (error) {
 
