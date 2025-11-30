@@ -150,7 +150,7 @@ const Employeeform = ({ schema }) => {
           <h2 className="text-xl text-center text-gray-700 font-semibold">
             {schema.title}
           </h2>
-          <p className="text-sm text-center text-gray-500 italic">
+          <p className="text-sm text-center text-gray-500">
             {schema.description}
           </p>
 
@@ -163,10 +163,23 @@ const Employeeform = ({ schema }) => {
               <form.Field
                 name="fullName"
                 validators={{
-                  onChange: ({ value }) =>
-                    value < f[0].validations.minLength
-                      ? "Min 3 characters is required"
-                      : "",
+                  // onChange: ({ value }) =>
+                  //   value < f[0].validations.minLength
+                  //     ? "Min 3 characters is required"
+                  //     : "",
+                  onChange: ({ value }) => {
+                    const rules = f[0].validations;
+
+                    if (!value) return "Fullname is required";
+
+                    if (rules.minLength && value < rules.minLength)
+                      return `Min ${rules.minLength} characters is required`;
+
+                    if (rules.maxLength && value > rules.maxLength)
+                      return `Max ${rules.maxLength} characters is required`;
+
+                    return "";
+                  },
                 }}
               >
                 {(field) => (
