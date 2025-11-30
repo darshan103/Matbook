@@ -101,7 +101,7 @@ const Employeeform = ({ schema }) => {
 
         // REDIRECT AFTER 1 sec
         setTimeout(
-          () => navigate("https://matbookbackend.onrender.com/api/submissions"),
+          () => navigate("/api/submissions"),
           1000
         );
 
