@@ -20,13 +20,15 @@ const EmployeePage = () => {
       queryFn: fetchFormSchema,
     });
 
-    if (isLoading) {
-      return (
-        <div className="w-full max-w-2xl bg-white rounded-xl shadow-md p-6">
-          <p className="text-gray-600 text-center">Loading form...</p>
-        </div>
-      );
-    }
+   if (isLoading) {
+     return (
+       <div className="flex justify-center">
+         <div className="w-full max-w-2xl bg-white rounded-xl shadow-md p-6 text-center">
+           <p className="text-gray-600">Loading form...</p>
+         </div>
+       </div>
+     );
+   }
 
     if (isError) {
       return (
