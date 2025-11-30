@@ -17,6 +17,10 @@ const EmployeeData = () => {
   const [error, setError] = useState(null);
   const [totalCount, setTotalCount] = useState(0);
 
+  const [selectedRow, setSelectedRow] = useState(null);
+  const [showModal, setShowModal] = useState(false);
+  const [showDrawer, setShowDrawer] = useState(false);
+
   // ---------------- FETCH DATA ----------------
   const fetchData = async () => {
     try {
@@ -59,46 +63,66 @@ const EmployeeData = () => {
       ),
       accessorKey: "createdAt",
       cell: (info) => new Date(info.getValue()).toLocaleDateString("en-IN"),
-      meta: { width: "180px" },
+      meta: { width: "200px" },
     },
     {
       header: "Full Name",
       accessorKey: "fullName",
+      meta: { width: "200px" },
     },
     {
-      header: "Skills",
-      accessorKey: "skills",
-      cell: (info) =>
-        (info.getValue() || []).map((skill, i) => {
-          const label = typeof skill === "string" ? skill : skill.label;
-          return (
-            <span
-              key={i}
-              className="px-2 py-1 bg-gray-200 rounded text-xs mr-1"
-            >
-              {label}
-            </span>
-          );
-        }),
-    },
-    {
-      header: "Joining Date",
-      accessorKey: "joinDate",
-    },
-    {
-      header: "Active",
-      accessorKey: "isActive",
+      header: "View",
+      accessorKey: "view",
       cell: (info) => (
-        <span
-          className={`px-2 py-1 rounded text-white ${
-            info.getValue() ? "bg-green-500" : "bg-red-500"
-          }`}
+        <button
+          onClick={() => handleView(info.row.original)}
+          className="px-3 py-1 text-sm bg-indigo-600 text-white rounded hover:bg-indigo-700 transition"
         >
-          {info.getValue() ? "Active" : "Inactive"}
-        </span>
+          View
+        </button>
       ),
+      meta: { width: "100px" },
     },
+    // {
+    //   header: "Skills",
+    //   accessorKey: "skills",
+    //   cell: (info) =>
+    //     (info.getValue() || []).map((skill, i) => {
+    //       const label = typeof skill === "string" ? skill : skill.label;
+    //       return (
+    //         <span
+    //           key={i}
+    //           className="px-2 py-1 bg-gray-200 rounded text-xs mr-1"
+    //         >
+    //           {label}
+    //         </span>
+    //       );
+    //     }),
+    // },
+    // {
+    //   header: "Joining Date",
+    //   accessorKey: "joinDate",
+    // },
+    // {
+    //   header: "Active",
+    //   accessorKey: "isActive",
+    //   cell: (info) => (
+    //     <span
+    //       className={`px-2 py-1 rounded text-white ${
+    //         info.getValue() ? "bg-green-500" : "bg-red-500"
+    //       }`}
+    //     >
+    //       {info.getValue() ? "Active" : "Inactive"}
+    //     </span>
+    //   ),
+    // },
   ];
+
+  const handleView = (row) => {
+    setSelectedRow(row);
+    setShowModal(true); // open modal
+    // setShowDrawer(true);  // OR open drawer
+  };
 
   // ---------------- TABLE ----------------
   const table = useReactTable({
@@ -224,6 +248,79 @@ const EmployeeData = () => {
           </button>
         </div>
       </div>
+
+      {/* ---------------- VIEW MODAL ---------------- */}
+      {showModal && selectedRow && (
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+          <div className="bg-white w-full max-w-lg rounded-lg shadow-lg p-6 relative animate-fadeIn">
+            {/* Close Button */}
+            <button
+              className="absolute top-3 right-3 text-gray-600 hover:text-black"
+              onClick={() => setShowModal(false)}
+            >
+              ✕
+            </button>
+
+            <h2 className="text-2xl font-bold mb-4 text-indigo-600">
+              Employee Details
+            </h2>
+
+            <div className="space-y-3 text-gray-800">
+              <p>
+                <strong>ID:</strong> {selectedRow.submissionId}
+              </p>
+
+              <p>
+                <strong>Full Name:</strong> {selectedRow.fullName}
+              </p>
+
+              <p>
+                <strong>Age:</strong> {selectedRow.age}
+              </p>
+
+              <p>
+                <strong>Gender:</strong> {selectedRow.gender}
+              </p>
+
+              <p>
+                <strong>Joining Date:</strong> {selectedRow.joinDate}
+              </p>
+
+              <p>
+                <strong>Status:</strong>{" "}
+                <span
+                  className={`px-2 py-1 rounded text-white ${
+                    selectedRow.isActive ? "bg-green-500" : "bg-red-500"
+                  }`}
+                >
+                  {selectedRow.isActive ? "Active" : "Inactive"}
+                </span>
+              </p>
+
+              <div>
+                <strong>Skills:</strong>
+                <div className="flex flex-wrap gap-2 mt-1">
+                  {selectedRow.skills?.map((s, i) => (
+                    <span
+                      key={i}
+                      className="px-2 py-1 bg-gray-200 rounded text-xs"
+                    >
+                      {typeof s === "string" ? s : s.label}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <strong>Bio:</strong>
+                <p className="bg-gray-100 p-2 rounded text-sm mt-1">
+                  {selectedRow.bio || "No bio provided."}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
