@@ -79,7 +79,7 @@ const Employeeform = ({ schema }) => {
         setStatus("");
 
         // Fake Delay
-        await new Promise((resolve) => setTimeout(resolve, 2000));
+        // await new Promise((resolve) => setTimeout(resolve, 2000));
 
         // Axios POST
         const res = await axios.post(
@@ -198,7 +198,7 @@ const Employeeform = ({ schema }) => {
                   name="age"
                   validators={{
                     onChange: ({ value }) => {
-                      const rules = f[1].validations; // <-- age validations
+                      const rules = f[1].validations;
 
                       if (!value) return "Age is required";
 
@@ -283,7 +283,7 @@ const Employeeform = ({ schema }) => {
                 name="skills"
                 validators={{
                   onChange: ({ value }) => {
-                    const v = f[3].validations; // ⬅️ minSelected & maxSelected rules
+                    const v = f[3].validations;
 
                     if (v.minSelected && value.length < v.minSelected) {
                       return `Select at least ${v.minSelected} skill(s)`;
@@ -381,7 +381,7 @@ const Employeeform = ({ schema }) => {
                     ></textarea>
 
                     {!field.state.meta.isValid && field.state.meta.errors ? (
-                      <p className="text-red-500 text-xs italic mt-1">
+                      <p className="text-red-500 text-xs italic">
                         {field.state.meta.errors}
                       </p>
                     ) : null}
@@ -421,7 +421,9 @@ const Employeeform = ({ schema }) => {
                   ${loading ? "opacity-60 cursor-not-allowed" : ""}`}
                 >
                   {loading ? (
-                    <div className="h-5 w-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    <div className="flex items-center justify-center w-full">
+                      <div className="h-5 w-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    </div>
                   ) : (
                     <>
                       <span>Add Employee</span>

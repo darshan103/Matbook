@@ -24,6 +24,15 @@ import EmployeeData from './pages/EmployeeData';
 function App() {
   return (
     <>
+      <nav className="w-full bg-white border-b shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 py-3">
+          <div className="flex justify-center">
+            <h1 className="text-2xl font-bold text-indigo-600 tracking-wide">
+              MatBook
+            </h1>
+          </div>
+        </div>
+      </nav>
       <Routes>
         <Route path="/" element={<EmployeePage />} />
         <Route path="/api/submissions" element={<EmployeeData />} />

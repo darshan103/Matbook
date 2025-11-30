@@ -7,15 +7,15 @@ import {
 import axios from "axios";
 
 const EmployeeData = () => {
-  const [submissions, setSubmissions] = useState([]); // FIX
+  const [submissions, setSubmissions] = useState([]);
   const [pageInfo, setPageInfo] = useState({});
   const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState(5); // items per page
+  const [limit, setLimit] = useState(5);
   const [sortBy, setSortBy] = useState("createdAt");
   const [sortOrder, setSortOrder] = useState("desc");
-  const [loading, setLoading] = useState(false); // ✅ Loading state
-  const [error, setError] = useState(null); // ✅ Error state
-  const [totalCount, setTotalCount] = useState(0); // ✅ Total submissions count
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [totalCount, setTotalCount] = useState(0);
 
   // ---------------- FETCH DATA ----------------
   const fetchData = async () => {
@@ -26,13 +26,13 @@ const EmployeeData = () => {
       const res = await axios.get("/api/submissions", {
         params: { page, limit, sortBy, sortOrder },
       });
-      
-      setSubmissions(res.data.data); // FIX
+
+      setSubmissions(res.data.data);
       setPageInfo(res.data.pageInfo);
       setTotalCount(res.data.pageInfo.totalItems);
-    } catch (error) {
+    } catch (err) {
       setError("Failed to load submissions");
-    } finally{
+    } finally {
       setLoading(false);
     }
   };
@@ -44,9 +44,9 @@ const EmployeeData = () => {
   // ---------------- COLUMNS ----------------
   const columns = [
     {
-      header: "SubmissionId",
+      header: "Submission ID",
       accessorKey: "submissionId",
-      meta: { width: "400px" },
+      meta: { width: "200px" },
     },
     {
       header: (
@@ -54,60 +54,60 @@ const EmployeeData = () => {
           className="cursor-pointer select-none"
           onClick={() => setSortOrder(sortOrder === "asc" ? "desc" : "asc")}
         >
-          CreatedAt {sortOrder === "asc" ? "↑" : "↓"}
+          Created At {sortOrder === "asc" ? "↑" : "↓"}
         </div>
       ),
       accessorKey: "createdAt",
       cell: (info) => new Date(info.getValue()).toLocaleDateString("en-IN"),
-      meta: { width: "250px" },
+      meta: { width: "180px" },
     },
     {
-      header: "FullName",
+      header: "Full Name",
       accessorKey: "fullName",
     },
     {
       header: "Skills",
       accessorKey: "skills",
-      cell: (info) => {
-        const skills = info.getValue() || [];
-
-        return skills.map((skill, i) => {
+      cell: (info) =>
+        (info.getValue() || []).map((skill, i) => {
           const label = typeof skill === "string" ? skill : skill.label;
-
           return (
             <span
               key={i}
-              style={{
-                padding: "2px 6px",
-                marginRight: "4px",
-                background: "#e5e7eb",
-                borderRadius: "4px",
-              }}
+              className="px-2 py-1 bg-gray-200 rounded text-xs mr-1"
             >
               {label}
             </span>
           );
-        });
-      },
+        }),
     },
     {
-      header: "JoiningDate",
+      header: "Joining Date",
       accessorKey: "joinDate",
     },
     {
       header: "Active",
       accessorKey: "isActive",
-      cell: (info) => (info.getValue() ? "Active" : "Inactive"),
+      cell: (info) => (
+        <span
+          className={`px-2 py-1 rounded text-white ${
+            info.getValue() ? "bg-green-500" : "bg-red-500"
+          }`}
+        >
+          {info.getValue() ? "Active" : "Inactive"}
+        </span>
+      ),
     },
   ];
 
   // ---------------- TABLE ----------------
   const table = useReactTable({
-    data: submissions, // FIX
+    data: submissions,
     columns,
     getCoreRowModel: getCoreRowModel(),
   });
 
+  // ---------------- UI STATES ----------------
   if (loading) {
     return (
       <div className="text-center mt-6 text-lg font-semibold">
@@ -133,86 +133,96 @@ const EmployeeData = () => {
   }
 
   return (
-    <div>
-      {/* TABLE */}
-      <table className="w-full border mt-6">
-        <thead className="bg-gray-200">
-          {table.getHeaderGroups().map((hg) => (
-            <tr key={hg.id}>
-              {hg.headers.map((header) => (
-                <th
-                  key={header.id}
-                  className="p-2 border"
-                  style={{ width: header.column.columnDef.meta?.width }}
-                >
-                  {flexRender(
-                    header.column.columnDef.header,
-                    header.getContext()
-                  )}
-                </th>
-              ))}
-            </tr>
-          ))}
-        </thead>
+    <div className="p-4">
+      {/* TOTAL COUNT */}
+      {/* <div className="text-lg font-semibold mb-3">
+        Total Submissions: {totalCount}
+      </div> */}
 
-        <tbody>
-          {table.getRowModel().rows.map((row) => (
-            <tr key={row.id}>
-              {row.getVisibleCells().map((cell) => (
-                <td
-                  key={cell.id}
-                  className="p-2 border text-center"
-                  style={{ width: cell.column.columnDef.meta?.width }}
-                >
-                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                </td>
-              ))}
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      {/* BEAUTIFUL TABLE */}
+      <div className="bg-white shadow-md rounded-lg overflow-hidden border border-gray-200">
+        <table className="w-full text-left border-collapse">
+          <thead className="bg-gray-100 text-gray-700">
+            {table.getHeaderGroups().map((hg) => (
+              <tr key={hg.id}>
+                {hg.headers.map((header) => (
+                  <th
+                    key={header.id}
+                    className="px-4 py-3 text-sm font-semibold border-b border-gray-200 text-center"
+                    style={{ width: header.column.columnDef.meta?.width }}
+                  >
+                    {flexRender(
+                      header.column.columnDef.header,
+                      header.getContext()
+                    )}
+                  </th>
+                ))}
+              </tr>
+            ))}
+          </thead>
+
+          <tbody className="text-gray-700">
+            {table.getRowModel().rows.map((row, rowIndex) => (
+              <tr
+                key={row.id}
+                className={`
+                  ${rowIndex % 2 === 0 ? "bg-white" : "bg-gray-50"}
+                  hover:bg-indigo-50 transition-colors
+                `}
+              >
+                {row.getVisibleCells().map((cell) => (
+                  <td
+                    key={cell.id}
+                    className="px-4 py-3 border-b border-gray-200 text-sm text-center"
+                    style={{ width: cell.column.columnDef.meta?.width }}
+                  >
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
 
       {/* PAGINATION CONTROLS */}
-      <div className="flex items-center justify-between mt-4">
-        <button
-          className="px-3 py-1 bg-gray-300 rounded disabled:bg-gray-200"
-          disabled={!pageInfo.hasPrevPage}
-          onClick={() => setPage(page - 1)}
-        >
-          Previous
-        </button>
-
-        <span>
-          Page {pageInfo.currentPage} of {pageInfo.totalPages}
-        </span>
-
-        <button
-          className="px-3 py-1 bg-gray-300 rounded disabled:bg-gray-200"
-          disabled={!pageInfo.hasNextPage}
-          onClick={() => setPage(page + 1)}
-        >
-          Next
-        </button>
-      </div>
-
-      {/* ITEMS PER PAGE */}
-      <div className="mt-3">
-        <select
-          className="border p-2"
-          value={limit}
-          onChange={(e) => {
-            setLimit(parseInt(e.target.value));
-            setPage(1); // reset to first page
-          }}
-        >
-          <option value="5">5 per page</option>
-          <option value="10">10 per page</option>
-          <option value="20">20 per page</option>
-        </select>
-      </div>
-
-      <div className="text-lg font-semibold mb-2">
-        Total Submissions: {totalCount}
+      <div className="flex items-center justify-between mt-5">
+        <div className="flex gap-3 align-center">
+          <select
+            className="border border-gray-300 rounded-md p-2 focus:ring-indigo-500 focus:border-indigo-500"
+            value={limit}
+            onChange={(e) => {
+              setLimit(parseInt(e.target.value));
+              setPage(1);
+            }}
+          >
+            <option value="5">5 per page</option>
+            <option value="10">10 per page</option>
+            <option value="20">20 per page</option>
+          </select>
+          <div className="text-sm text-gray-600 mt-2 text-center italic">
+            Items {Math.min(page * limit, totalCount)} of {totalCount}
+          </div>
+        </div>
+        <div className="flex items-center gap-3">
+          <span className="text-sm text-gray-600 mt-2 text-center italic">
+            Page {pageInfo.currentPage} of {pageInfo.totalPages}
+          </span>
+          <button
+            className="px-4 py-2 bg-indigo-600 text-white rounded-md disabled:bg-gray-300 hover:bg-indigo-700 transition"
+            disabled={!pageInfo.hasPrevPage}
+            onClick={() => setPage(page - 1)}
+          >
+            Previous
+          </button>
+          <button
+            className="px-4 py-2 bg-indigo-600 text-white rounded-md disabled:bg-gray-300 hover:bg-indigo-700 transition"
+            disabled={!pageInfo.hasNextPage}
+            onClick={() => setPage(page + 1)}
+          >
+            Next
+          </button>
+        </div>
       </div>
     </div>
   );
