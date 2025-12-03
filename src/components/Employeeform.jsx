@@ -4,6 +4,7 @@ import Select from "react-select";
 import { FaArrowRight } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { useQuery } from "@tanstack/react-query";
 
 const inputClass =
   "w-full h-11 border border-gray-400 rounded-md px-3 text-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500";
@@ -32,33 +33,19 @@ const selectStyles = {
   }),
 };
 
-const Employeeform = ({ schema }) => {
+export const fetchFormSchema = async () => {
+  console.log("console hit API");
+  const res = await axios.get(
+    "https://matbookbackend.onrender.com/api/form-schema"
+  );
+  return res.data;
+};
+
+const Employeeform = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
   const [status, setStatus] = useState("");
-
-  const f = schema.fields;
-  console.log("schema f:", f);
-
-  // multi-select options
-  const skillOptions = f[3].options.map((item) => ({
-    value: item,
-    label: item,
-  }));
-
-  const TanStackSelect = ({ field, options, placeholder }) => (
-    <Select
-      isMulti
-      value={field.state.value || []}
-      onChange={field.handleChange}
-      onBlur={field.handleBlur}
-      options={options}
-      placeholder={placeholder}
-      className="w-full"
-      styles={selectStyles}
-    />
-  );
 
   // Default values based on schema names
   const form = useForm({
@@ -82,7 +69,10 @@ const Employeeform = ({ schema }) => {
         // await new Promise((resolve) => setTimeout(resolve, 2000));
 
         // Axios POST
-        const res = await axios.post("https://matbookbackend.onrender.com/api/submissions", value);
+        const res = await axios.post(
+          "https://matbookbackend.onrender.com/api/submissions",
+          value
+        );
 
         const result = res.data;
         if (!result.success) {
@@ -100,13 +90,8 @@ const Employeeform = ({ schema }) => {
         formApi.reset();
 
         // REDIRECT AFTER 1 sec
-        setTimeout(
-          () => navigate("/api/submissions"),
-          1000
-        );
-
+        setTimeout(() => navigate("/api/submissions"), 1000);
       } catch (error) {
-
         // Validation error
         if (error.response?.data?.errors) {
           setMessage("Validation error!");
@@ -122,6 +107,43 @@ const Employeeform = ({ schema }) => {
       }
     },
   });
+
+  const { data: schema, isLoading } = useQuery({
+    queryKey: ["form-schema"],
+    queryFn: fetchFormSchema,
+  });
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center">
+        <div className="w-full max-w-2xl bg-white rounded-xl shadow-md p-6 text-center">
+          <p className="text-gray-600">Loading form...</p>
+        </div>
+      </div>
+    );
+  }
+
+  const f = schema.fields;
+  console.log("schema f:", f);
+
+  // multi-select options
+  const skillOptions = f[3].options.map((item) => ({
+    value: item,
+    label: item,
+  }));
+
+  const TanStackSelect = ({ field, options, placeholder }) => (
+    <Select
+      isMulti
+      value={field.state.value || []}
+      onChange={field.handleChange}
+      onBlur={field.handleBlur}
+      options={options}
+      placeholder={placeholder}
+      className="w-full"
+      styles={selectStyles}
+    />
+  );
 
   return (
     <div className="pt-3">
